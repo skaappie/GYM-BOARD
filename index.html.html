@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gym Board</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #000000, #1a1a1a);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      text-align: center;
+      background: #0d0d0d;
+      padding: 36px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+      max-width: 380px;
+      width: 92%;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 6px;
+      color: #ff1a1a;
+      letter-spacing: 2px;
+    }
+
+    p.sub {
+      color: #cccccc;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+    }
+
+    .workout-button {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: none;
+      background: radial-gradient(circle, #ff1a1a, #b30000);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 22px rgba(255, 0, 0, 0.8);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .workout-button:hover { transform: scale(1.05); box-shadow: 0 0 32px rgba(255, 0, 0, 1); }
+    .workout-button:active { transform: scale(0.95); }
+
+    .stats {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      background: #111;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+
+    .label { color: #aaa; font-size: 0.8rem; }
+    .value { color: #ff1a1a; font-weight: 800; font-size: 1.4rem; }
+
+    .motivation {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #0f0f0f;
+      border-left: 4px solid #ff1a1a;
+      font-size: 0.95rem;
+      color: #eee;
+      min-height: 52px;
+    }
+
+    .footer {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GYM BOARD</h1>
+    <p class="sub">Press once per day you train. No excuses.</p>
+
+    <button class="workout-button" onclick="logWorkout()">WORKOUT</button>
+
+    <div class="stats">
+      <div class="card">
+        <div class="label">Total Workouts</div>
+        <div class="value" id="total">0</div>
+      </div>
+      <div class="card">
+        <div class="label">Current Streak (days)</div>
+        <div class="value" id="streak">0</div>
+      </div>
+    </div>
+
+    <div class="motivation" id="motivation"></div>
+
+    <div class="footer">Consistency beats hype.</div>
+  </div>
+
+  <script>
+    const harshLines = [
+      "You showed up. Good. Do it again tomorrow.",
+      "No magic. Just work. Keep moving.",
+      "Results don’t care how you feel. Train.",
+      "Comfort is expensive. You just paid with effort.",
+      "Miss days, lose momentum. Stay sharp.",
+      "Discipline > motivation. You chose discipline.",
+      "Strong habits beat strong feelings. Continue.",
+      "One session doesn’t change you. Streaks do.",
+      "You’re not done. You’re building.",
+      "The work is the point. Respect it."
+    ];
+
+    const todayKey = new Date().toDateString();
+
+    let total = Number(localStorage.getItem('gb_total') || 0);
+    let streak = Number(localStorage.getItem('gb_streak') || 0);
+    let lastDay = localStorage.getItem('gb_lastDay');
+
+    const totalEl = document.getElementById('total');
+    const streakEl = document.getElementById('streak');
+    const motEl = document.getElementById('motivation');
+
+    function setMotivation() {
+      const line = harshLines[Math.floor(Math.random() * harshLines.length)];
+      motEl.textContent = line;
+    }
+
+    function daysBetween(a, b) {
+      const one = new Date(a);
+      const two = new Date(b);
+      const diff = (two - one) / (1000 * 60 * 60 * 24);
+      return Math.round(diff);
+    }
+
+    function logWorkout() {
+      if (lastDay === todayKey) {
+        motEl.textContent = "Already logged today. Come back tomorrow.";
+        return;
+      }
+
+      total++;
+
+      if (!lastDay) {
+        streak = 1;
+      } else {
+        const gap = daysBetween(lastDay, todayKey);
+        streak = gap === 1 ? streak + 1 : 1;
+      }
+
+      lastDay = todayKey;
+
+      localStorage.setItem('gb_total', total);
+      localStorage.setItem('gb_streak', streak);
+      localStorage.setItem('gb_lastDay', lastDay);
+
+      render();
+      setMotivation();
+    }
+
+    function render() {
+      totalEl.textContent = total;
+      streakEl.textContent = streak;
+    }
+
+    render();
+    setMotivation();
+  </script>
+</body>
+</html>
